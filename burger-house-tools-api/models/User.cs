@@ -1,0 +1,11 @@
+using burger_house_tools_api.Models.Enums;
+
+namespace burger_house_tools_api.Models;
+
+public class User{
+    public int Id { get; set; }
+    public String Name { get; set; }
+    public String Login { get; set; }
+    public String Password { get; set; }
+    public UserRole UserRole { get; set; }
+}
