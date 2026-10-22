@@ -61,3 +61,12 @@ Com a aplicação rodando via Docker, o painel de gerenciamento do RabbitMQ já 
   "password": "123123",
   "userRole": "Caixa"
 }
+
+## 📖 Documentação da API (Swagger)
+
+A API utiliza o Swagger para documentar e disponibilizar uma interface interativa de todos os endpoints. Isto permite testar o CRUD diretamente pelo navegador.
+
+1. Com a aplicação a correr no terminal, abra o seu navegador.
+2. Aceda ao seguinte endereço: `http://localhost:<porta_da_aplicacao>/swagger`
+   *(Nota: A porta exata será exibida no terminal após executar o `start.sh` ou o `dotnet run`. Exemplo: `http://localhost:5000/swagger`).*
+3. Através do Swagger, pode realizar pedidos HTTP (GET, POST, PUT, DELETE) e validar rapidamente se os dados inseridos via RabbitMQ já se encontram persistidos na base de dados utilizando o endpoint `GET`.
