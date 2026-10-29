@@ -1,22 +1,28 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using burger_house_tools_api.Models;
 using burger_house_tools_api.DTOs;
+using burger_house_tools_api.Services;
 
 namespace burger_house_tools_api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly KeycloakService _keycloakService;
 
-    public UsersController(AppDbContext context)
+    public UsersController(AppDbContext context, KeycloakService keycloakService)
     {
         _context = context;
+        _keycloakService = keycloakService;
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Caixa,Garcom")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _context.Users.ToListAsync();
@@ -24,6 +30,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,Caixa,Garcom")]
     public async Task<IActionResult> GetById(int id)
     {
         var users = await _context.Users.FindAsync(id);
@@ -35,25 +42,41 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] UserInputDto input)
     {
-        // Converte o DTO para a Entidade do banco
+        // 1. Cria o usuário no Keycloak (login, senha e role)
+        string keycloakId;
+        try
+        {
+            keycloakId = await _keycloakService.CreateUserAsync(
+                input.Login, input.Password, input.UserRole.ToString());
+        }
+        catch (HttpRequestException ex)
+        {
+            return BadRequest(new { message = "Erro ao criar usuário no Keycloak.", details = ex.Message });
+        }
+
+        // 2. Salva os dados de negócio na tabela local
         var user = new User
         {
+            KeycloakId = keycloakId,
             Name = input.Name,
             Login = input.Login,
             Password = input.Password,
-            UserRole = input.UserRole
+            UserRole = input.UserRole,
+            DailyRate = input.DailyRate,
+            Pix = input.Pix
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        // Retorna o status 201 Created apontando para a rota de GetById
         return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UserInputDto input)
     {
         var user = await _context.Users.FindAsync(id);
@@ -65,13 +88,16 @@ public class UsersController : ControllerBase
         user.Login = input.Login;
         user.Password = input.Password;
         user.UserRole = input.UserRole;
+        user.DailyRate = input.DailyRate;
+        user.Pix = input.Pix;
 
         await _context.SaveChangesAsync();
         
-        return NoContent(); // Status 204 para atualizações com sucesso
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var user = await _context.Users.FindAsync(id);

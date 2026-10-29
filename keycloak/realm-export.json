@@ -1,0 +1,116 @@
+{
+  "id": "burger-house",
+  "realm": "burger-house",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "Admin",
+        "description": "Perfil de Administrador com acesso total"
+      },
+      {
+        "name": "Caixa",
+        "description": "Perfil de Caixa"
+      },
+      {
+        "name": "Garcom",
+        "description": "Perfil de Garçom"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "burger-house-api",
+      "name": "Burger House Tools API",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "webOrigins": [
+        "*"
+      ],
+      "redirectUris": [
+        "*"
+      ],
+      "protocolMappers": [
+        {
+          "name": "realm-roles-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "admin-cli",
+      "name": "API Admin Service Account",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "burger-house-admin-secret-123",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@burgerhouse.com",
+      "firstName": "Admin",
+      "lastName": "Burger",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Admin"
+      ]
+    },
+    {
+      "username": "caixa",
+      "enabled": true,
+      "email": "caixa@burgerhouse.com",
+      "firstName": "Caixa",
+      "lastName": "Burger",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "caixa123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Caixa"
+      ]
+    },
+    {
+      "username": "garcom",
+      "enabled": true,
+      "email": "garcom@burgerhouse.com",
+      "firstName": "Garcom",
+      "lastName": "Burger",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "garcom123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Garcom"
+      ]
+    }
+  ]
+}
